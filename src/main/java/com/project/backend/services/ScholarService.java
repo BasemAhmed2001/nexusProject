@@ -5,7 +5,7 @@ import com.project.backend.DTOs.DTOs;
 import com.project.backend.DTOs.PaperDTO;
 import com.project.backend.DTOs.PaperDetailsDTOs;
 import com.project.backend.DTOs.SearchResponseDTO;
-import com.project.backend.entities.Paper;
+//import com.project.backend.entities.Paper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
