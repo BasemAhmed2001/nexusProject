@@ -10,18 +10,21 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Service
 public class ScholarService {
 
-    private final WebClient webClient;
+    private final WebClient semanticScholarClient;
 
-    public ScholarService( WebClient webClient) {
-        this.webClient = webClient;
+    public ScholarService(@Qualifier("semanticScholarClient") WebClient semanticScholarClient) {
+        this.semanticScholarClient = semanticScholarClient;
     }
 
     public Mono<PaperDTO> getPaperDetails(String paperId) {
-        return webClient.get()
+        return semanticScholarClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/paper/{paperId}")
                         .queryParam("fields", "title,year,authors,abstract,url")
@@ -31,21 +34,23 @@ public class ScholarService {
     }
 
     public Mono<SearchResponseDTO> searchPapers(String query, int limit, int offset) {
-        return webClient.get()
+        return semanticScholarClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/paper/search")
                         .queryParam("query", query)
-                        .queryParam("fields", "title,year,authors,abstract,url")
+                        .queryParam("fields", "title,year,authors,abstract,url,authors.url,authors.name")
                         .queryParam("offset", offset)
                         .queryParam("limit", limit)
                         .build())
                 .retrieve()
                 .bodyToMono(SearchResponseDTO.class);
+                //.timeout(Duration.ofSeconds(10))
+                //.retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(5)));
     }
 
 
     public Mono<DTOs.SnippetSearchResponse> snippetSearch(String query, int limit) {
-        return webClient.get()
+        return semanticScholarClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/snippet/search")
                         .queryParam("query", query)
@@ -59,7 +64,7 @@ public class ScholarService {
 
     public Mono<PaperDetailsDTOs.PaperDetailsResponse> paperSearchById(String paperId) {
 
-        return webClient.get()
+        return semanticScholarClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/paper/CorpusID:"+paperId)
                         .queryParam("fields", "embedding,fieldsOfStudy,title,year,authors,abstract,url,citations.title,citations.abstract,authors.name,authors.url,authors.paperCount")//,citations.title,citations.abstract,author.url,author.paperCount

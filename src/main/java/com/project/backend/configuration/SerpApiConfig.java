@@ -16,7 +16,7 @@ public class SerpApiConfig {
     @Value("${serpapi.api-key}")
     private String apiKey;
 
-    @Bean
+    @Bean("serpApiWebClient")
     public WebClient serpApiWebClient() {
         return WebClient.builder()
                 .baseUrl("https://serpapi.com")
